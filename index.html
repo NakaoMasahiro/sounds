@@ -48,22 +48,34 @@
             font-size: 0.8rem; color: #88aaaa; margin-bottom: 12px; line-height: 1.4;
         }
 
-        /* 音を追加するボタンエリア */
-        .btn-row {
-            display: flex; gap: 10px; width: 100%; margin-bottom: 12px;
+        /* オーブ（音の塊）が並ぶエリア */
+        .audio-list {
+            display: flex; gap: 10px; justify-content: center;
+            margin-bottom: 15px; flex-wrap: wrap;
         }
 
-        .sound-add-btn {
-            flex: 1; background-color: #1a2a3a; border: 2px solid rgba(0,255,255,0.3);
-            color: #fff; padding: 12px; border-radius: 20px; font-weight: bold;
-            font-size: 0.9rem; cursor: pointer; transition: all 0.2s;
+        .audio-orb {
+            width: 50px; height: 50px; border-radius: 25px;
+            background-color: #1a2a3a; border: 2px solid rgba(0,255,255,0.3);
+            display: flex; align-items: center; justify-content: center;
+            color: #fff; font-weight: bold; cursor: pointer; transition: all 0.2s;
+            font-size: 0.9rem; box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
-        .sound-add-btn:active { transform: scale(0.95); }
-        .sound-add-btn.active {
-            background-color: rgba(0,255,255,0.15);
+        .audio-orb.playing {
             border-color: var(--accent-color);
-            box-shadow: 0 0 15px rgba(0,255,255,0.4);
+            box-shadow: 0 0 15px var(--accent-color);
+            background-color: rgba(0,255,255,0.1);
         }
+
+        .upload-label {
+            width: 100%; background-color: #115588; border: 1px solid var(--accent-color);
+            color: white; padding: 12px; border-radius: 20px; font-weight: bold;
+            font-size: 0.9rem; cursor: pointer; display: block; margin-bottom: 12px;
+            box-sizing: border-box; transition: background 0.2s;
+        }
+        .upload-label:active { transform: scale(0.98); }
+        
+        #audioFile { display: none; }
 
         .gift-btn {
             width: 100%; background: linear-gradient(135deg, #cc11aa, #ff3344);
@@ -100,12 +112,12 @@
 
     <div class="ui-layer">
         <div class="controls-panel">
-            <div class="instruction">下のボタンを押すと夏の音が重なり、<br>画面に電気的なカタチが生まれます。シェイプを触ると変形します。</div>
+            <div class="instruction">【音声をアップロード】すると、画面にカタチが生まれます。<br>複数の音を重ねることができ、形を触ると変形します。</div>
             
-            <div class="btn-row">
-                <button id="btn-thunder" class="sound-add-btn">⚡ 雷の音を追加</button>
-                <button id="btn-rain" class="sound-add-btn">🌧️ 雨の音を追加</button>
-            </div>
+            <div class="audio-list" id="audioList"></div>
+
+            <label for="audioFile" class="upload-label">🎵 スマホの音・録音をアップロード</label>
+            <input type="file" id="audioFile" accept="audio/*">
             
             <button id="giftBtn" class="gift-btn">お中元を開ける 🎁</button>
         </div>
@@ -120,7 +132,7 @@
 
 猛暑の折、体調を崩されませぬよう、どうぞご自愛ください。
 
-（※お品物は別途、宅配便にてお届けいたします！）</p>
+（※お品物は別途, 宅配便にてお届けいたします！）</p>
             <button id="closeModalBtn" class="close-btn">閉じる</button>
         </div>
     </div>
@@ -128,17 +140,14 @@
     <script>
         const canvas = document.getElementById('artCanvas');
         const ctx = canvas.getContext('2d');
+        const audioFileInput = document.getElementById('audioFile');
+        const audioListContainer = document.getElementById('audioList');
         const giftBtn = document.getElementById('giftBtn');
         const giftModal = document.getElementById('giftModal');
         const closeModalBtn = document.getElementById('closeModalBtn');
 
         let audioCtx = null;
-        
-        // 音源データの定義（すでにリポジトリにあるファイルを指定）
-        const soundInfo = [
-            { id: 'thunder', url: 'thunder.mp3', btn: document.getElementById('btn-thunder'), type: 0, buffer: null, sourceNode: null, analyser: null, isPlaying: false, dataArray: null, shape: null },
-            { id: 'rain', url: 'rain.mp3', btn: document.getElementById('btn-rain'), type: 1, buffer: null, sourceNode: null, analyser: null, isPlaying: false, dataArray: null, shape: null }
-        ];
+        const sounds = []; // 読み込まれた音のリスト
 
         function resizeCanvas() {
             canvas.width = window.innerWidth;
@@ -152,13 +161,17 @@
             constructor(type) {
                 this.x = canvas.width / 2;
                 this.y = canvas.height / 2;
-                this.baseSize = 50 + Math.random() * 20;
+                this.baseSize = 40 + Math.random() * 20;
                 this.size = this.baseSize;
-                this.color = type === 0 ? 'rgba(0, 255, 255, 0.7)' : 'rgba(255, 0, 255, 0.6)'; // 雷はシアン、雨はマゼンタ
-                this.vx = (Math.random() - 0.5) * 2;
-                this.vy = (Math.random() - 0.5) * 2;
-                this.type = type; 
-                this.points = type === 0 ? 12 : 6;
+                // 追加されるごとにランダムでサイケデリックな電気色にする
+                const hues = [180, 280, 60, 330]; 
+                const selectedHue = hues[type % hues.length];
+                this.color = `rgba(${selectedHue === 180 ? '0,255,255' : selectedHue === 280 ? '150,50,255' : selectedHue === 60 ? '200,255,0' : '255,0,150'}, 0.65)`;
+                
+                this.vx = (Math.random() - 0.5) * 2.5;
+                this.vy = (Math.random() - 0.5) * 2.5;
+                this.type = type % 2; 
+                this.points = this.type === 0 ? 12 : 6;
                 this.isTouched = false;
                 this.touchTimer = 0;
             }
@@ -174,7 +187,7 @@
             }
 
             update(volume) {
-                this.size = this.baseSize + (volume * 160);
+                this.size = this.baseSize + (volume * 180);
 
                 if (this.isTouched) {
                     this.touchTimer -= 0.02;
@@ -184,8 +197,8 @@
                 this.x += this.vx;
                 this.y += this.vy;
 
-                if (this.x < 50 || this.x > canvas.width - 50) this.vx *= -1;
-                if (this.y < 50 || this.y > canvas.height - 50) this.vy *= -1;
+                if (this.x < 40 || this.x > canvas.width - 40) this.vx *= -1;
+                if (this.y < 40 || this.y > canvas.height - 40) this.vy *= -1;
             }
 
             draw() {
@@ -194,20 +207,20 @@
                 ctx.lineWidth = this.isTouched ? 4 : 2;
                 
                 if (this.isTouched) {
-                    ctx.fillStyle = this.color.replace('0.', '0.9'); 
+                    ctx.fillStyle = this.color.replace('0.65', '0.9'); 
                     ctx.strokeStyle = '#ffffff'; 
                     ctx.shadowColor = '#ffffff';
                     ctx.shadowBlur = 25;
                 } else {
                     ctx.fillStyle = this.color;
-                    ctx.strokeStyle = this.color.replace('0.', '1.');
+                    ctx.strokeStyle = this.color.replace('0.65', '1');
                     ctx.shadowColor = this.color;
                     ctx.shadowBlur = 12;
                 }
 
                 ctx.beginPath();
                 if (this.type === 0) {
-                    // ⚡ 雷：カクカクした電気パルス
+                    // ⚡ カクカクパルス
                     for (let i = 0; i < this.points; i++) {
                         const angle = (Math.PI * 2 / this.points) * i;
                         const jolt = (Math.random() - 0.5) * (this.isTouched ? 40 : 15);
@@ -215,7 +228,7 @@
                         ctx.lineTo(Math.cos(angle) * r, Math.sin(angle) * r);
                     }
                 } else {
-                    // 🌧️ 雨：タッチで形状の頂点数が変わるデジタルグリッド
+                    // 🌐 デジタルグリッド
                     const p = this.isTouched ? 4 : this.points;
                     for (let i = 0; i < p; i++) {
                         const angle = (Math.PI * 2 / p) * i;
@@ -236,84 +249,94 @@
             }
         }
 
-        // 音声をインターネット経由（GitHub内）からダウンロードする関数
-        function loadSound(sound) {
-            return fetch(sound.url)
-                .then(response => response.arrayBuffer())
-                .then(arrayBuffer => audioCtx.decodeAudioData(arrayBuffer))
-                .then(buffer => {
-                    sound.buffer = buffer;
-                    sound.analyser = audioCtx.createAnalyser();
-                    sound.analyser.fftSize = 32;
-                    sound.dataArray = new Uint8Array(16);
-                });
-        }
+        // ファイルが選択された時の処理（セキュリティ制限対応版）
+        audioFileInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
 
-        // ボタンを押した時の切り替え処理
-        function toggleSound(sound) {
             initAudioContext();
             if (audioCtx.state === 'suspended') audioCtx.resume();
 
-            if (sound.isPlaying) {
-                // 停止処理
-                if (sound.sourceNode) sound.sourceNode.stop();
-                sound.isPlaying = false;
-                sound.btn.classList.remove('active');
-                sound.shape = null; // シェイプを消去
-            } else {
-                // 再生処理
-                sound.btn.innerText = "読み込み中...";
+            // セキュリティ制限を回避するため、Blob URL（仮想URL）を生成
+            const fileURL = URL.createObjectURL(file);
+            
+            // 仮想オーディオ要素を生成
+            const audioEl = new Audio(fileURL);
+            audioEl.loop = true;
+            audioEl.crossOrigin = "anonymous";
+
+            // Web Audio APIのノードを作成
+            const sourceNode = audioCtx.createMediaElementSource(audioEl);
+            const analyser = audioCtx.createAnalyser();
+            analyser.fftSize = 32;
+            
+            sourceNode.connect(analyser);
+            analyser.connect(audioCtx.destination);
+
+            // 新しいシェイプを生成
+            const index = sounds.length;
+            const newShape = new ElectricShape(index);
+
+            // 画面に「音のオーブ（ボタン）」を追加
+            const orb = document.createElement('div');
+            orb.className = 'audio-orb';
+            orb.innerText = index + 1;
+            audioListContainer.appendChild(orb);
+
+            // データを保持
+            const soundData = {
+                audioEl: audioEl,
+                analyser: analyser,
+                dataArray: new Uint8Array(16),
+                shape: newShape,
+                isPlaying: false,
+                orbEl: orb
+            };
+            sounds.push(soundData);
+
+            // オーブをクリックして再生/停止を切り替え
+            orb.addEventListener('click', () => {
+                if (audioCtx.state === 'suspended') audioCtx.resume();
                 
-                const startPlay = () => {
-                    sound.sourceNode = audioCtx.createBufferSource();
-                    sound.sourceNode.buffer = sound.buffer;
-                    sound.sourceNode.connect(sound.analyser);
-                    sound.analyser.connect(audioCtx.destination);
-                    sound.sourceNode.loop = true;
-                    sound.sourceNode.start(0);
-                    
-                    sound.isPlaying = true;
-                    sound.btn.classList.add('active');
-                    sound.btn.innerText = sound.id === 'thunder' ? '⚡ 雷の音を消す' : '🌧️ 雨の音を消す';
-                    
-                    // 新しいシェイプを画面中央に生成
-                    sound.shape = new ElectricShape(sound.type);
-                };
-
-                if (sound.buffer) {
-                    startPlay();
+                if (soundData.isPlaying) {
+                    audioEl.pause();
+                    orb.classList.remove('playing');
+                    soundData.isPlaying = false;
                 } else {
-                    loadSound(sound).then(startPlay).catch(err => {
-                        alert("音の読み込みに失敗しました。時間をおいて再度お試しください。");
-                        sound.btn.innerText = sound.id === 'thunder' ? '⚡ 雷の音を追加' : '🌧️ 雨の音を追加';
-                    });
+                    audioEl.play().catch(err => console.log("Play error: ", err));
+                    orb.classList.add('playing');
+                    soundData.isPlaying = true;
                 }
-            }
-        }
+            });
 
-        // 各ボタンにイベントを設定
-        soundInfo.forEach(sound => {
-            sound.btn.addEventListener('click', () => toggleSound(sound));
+            // 追加したら自動的に再生をONにする
+            audioEl.play().catch(err => console.log("Auto-play blocked, click the orb."));
+            orb.classList.add('playing');
+            soundData.isPlaying = true;
+            
+            // 入力欄をクリア（同じファイルを連続で選べるように）
+            audioFileInput.value = '';
         });
 
         // --- メイン描画ループ ---
         function animate() {
             requestAnimationFrame(animate);
 
-            ctx.fillStyle = 'rgba(5, 8, 16, 0.25)'; // 黒い背景（残像あり）
+            ctx.fillStyle = 'rgba(5, 8, 16, 0.25)'; 
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            soundInfo.forEach(sound => {
-                if (sound.isPlaying && sound.shape) {
-                    let volume = 0;
+            sounds.forEach(sound => {
+                let volume = 0;
+                if (sound.isPlaying) {
                     sound.analyser.getByteFrequencyData(sound.dataArray);
                     let sum = 0;
                     for (let i = 0; i < sound.dataArray.length; i++) sum += sound.dataArray[i];
                     volume = (sum / sound.dataArray.length) / 255;
-
-                    sound.shape.update(volume);
-                    sound.shape.draw();
                 }
+
+                // 音が鳴っていなくても、登録されていればシェイプは存在して動き続ける
+                sound.shape.update(volume);
+                sound.shape.draw();
             });
         }
         animate();
@@ -325,8 +348,8 @@
             const tx = clientX - rect.left;
             const ty = clientY - rect.top;
 
-            soundInfo.forEach(sound => {
-                if (sound.shape) sound.shape.checkTouch(tx, ty);
+            sounds.forEach(sound => {
+                sound.shape.checkTouch(tx, ty);
             });
         }
 
@@ -337,8 +360,11 @@
 
         // --- モーダル処理 ---
         giftBtn.addEventListener('click', () => {
-            soundInfo.forEach(sound => {
-                if (sound.isPlaying) toggleSound(sound);
+            // すべての音を一時停止
+            sounds.forEach(sound => {
+                sound.audioEl.pause();
+                sound.orbEl.classList.remove('playing');
+                sound.isPlaying = false;
             });
             giftModal.style.display = 'flex';
         });
