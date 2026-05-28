@@ -1,1 +1,363 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>夏の音をつむぐ音感パズル</title>
+    <style>
+        :root {
+            --bg-color: #f0f4f8;
+            --panel-bg: #ffffff;
+            --accent-color: #4a75a0;
+            --text-color: #2d3748;
+        }
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        h1 {
+            font-size: 1.4rem;
+            color: #2b6cb0;
+            margin-bottom: 5px;
+            text-align: center;
+        }
+        .subtitle {
+            font-size: 0.85rem;
+            color: #4a5568;
+            margin-bottom: 25px;
+            text-align: center;
+            line-height: 1.4;
+        }
+        .container {
+            width: 100%;
+            max-width: 450px;
+            background: var(--panel-bg);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+            box-sizing: border-box;
+        }
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+        .btn {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.95rem;
+        }
+        .btn:hover { background-color: #3182ce; }
+        .btn.stop { background-color: #e53e3e; }
+        
+        .tempo-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.85rem;
+            color: #4a5568;
+        }
+        /* シーケンサーのグリッド（2行×4列） */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-bottom: 30px;
+        }
+        .row-label {
+            grid-column: span 4;
+            font-size: 0.85rem;
+            font-weight: bold;
+            color: #4a5568;
+            margin-top: 10px;
+            margin-left: 2px;
+        }
+        .cell {
+            aspect-ratio: 1.3;
+            background-color: #edf2f7;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 2px solid transparent;
+        }
+        /* 音ごとの色分け */
+        .cell[data-row="0"].active { 
+            background-color: #ecc94b; 
+            box-shadow: 0 0 15px rgba(236, 201, 75, 0.6); 
+        }
+        .cell[data-row="1"].active { 
+            background-color: #63b3ed; 
+            box-shadow: 0 0 15px rgba(99, 179, 237, 0.6); 
+        }
+        
+        .cell.playing {
+            transform: scale(1.05);
+            border-color: #4a5568;
+        }
+        /* お中元ボタン */
+        .gift-section {
+            text-align: center;
+            margin-top: 10px;
+        }
+        .gift-btn {
+            background: linear-gradient(135deg, #319795, #4fd1c5);
+            color: white;
+            font-size: 1.05rem;
+            padding: 14px 35px;
+            border-radius: 30px;
+            box-shadow: 0 5px 15px rgba(49, 151, 149, 0.3);
+            animation: pulse 2.5s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+            100% { transform: scale(1); }
+        }
+        /* モーダル */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        }
+        .modal-content h2 {
+            color: #2c5282;
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+        .modal-content p {
+            line-height: 1.6;
+            color: #4a5568;
+            white-space: pre-wrap;
+            text-align: left;
+            font-size: 0.95rem;
+        }
+        .close-btn {
+            margin-top: 20px;
+            background-color: #718096;
+            padding: 10px 20px;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
 
+    <h1>⚡ 夏の音をつむぐ音感パズル 🌧️</h1>
+    <div class="subtitle">マス目をタップして、夕立の音のリズムを作ってみてください<br>(音が鳴らない場合は、再生を押してからマスを叩いてみてください)</div>
+
+    <div class="container">
+        <div class="controls">
+            <button id="playBtn" class="btn">再生 ▶</button>
+            <div class="tempo-container">
+                <label for="bpm">速さ:</label>
+                <input type="range" id="bpm" min="60" max="180" value="100">
+                <span id="bpmVal">100</span>
+            </div>
+        </div>
+
+        <div class="grid" id="sequencerGrid">
+            </div>
+
+        <div class="gift-section">
+            <button id="giftBtn" class="btn gift-btn">お中元を開ける 🎁</button>
+        </div>
+    </div>
+
+    <div id="giftModal" class="modal">
+        <div class="modal-content">
+            <h2>御中元 🌸</h2>
+            <p id="blessingMessage">いつも温かいお心遣いをいただき、心より感謝申し上げます。
+
+日頃の感謝を込めまして、ささやかではございますが、涼を感じていただけるお品物をお贈りいたしました。
+
+猛暑の折、体調を崩されませぬよう、どうぞご自愛ください。
+
+（※お品物は別途、宅配便にてお届けいたします！）</p>
+            <button id="closeModalBtn" class="btn close-btn">閉じる</button>
+        </div>
+    </div>
+
+    <script>
+        // あなたがアップロードした2つの音声ファイル
+        const soundFiles = [
+            'thunder.mp3',
+            'rain.mp3'
+        ];
+
+        let audioCtx = null;
+        let audioBuffers = [null, null];
+
+        // 音声の初期化
+        function initAudio() {
+            if (audioCtx) return;
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            
+            soundFiles.forEach((url, index) => {
+                fetch(url)
+                    .then(response => {
+                        if (!response.ok) throw new Error('音声ファイルが見つかりません');
+                        return response.arrayBuffer();
+                    })
+                    .then(arrayBuffer => audioCtx.decodeAudioData(arrayBuffer))
+                    .then(audioBuffer => {
+                        audioBuffers[index] = audioBuffer;
+                        console.log(url + ' の読み込みが完了しました');
+                    })
+                    .catch(err => {
+                        console.error('読み込みエラー:', err);
+                    });
+            });
+        }
+
+        function playSound(index) {
+            if (!audioCtx || !audioBuffers[index]) return;
+            const source = audioCtx.createBufferSource();
+            source.buffer = audioBuffers[index];
+            source.connect(audioCtx.destination);
+            source.start(0);
+        }
+
+        const rows = 2;
+        const cols = 4;
+        const gridState = Array(rows).fill().map(() => Array(cols).fill(0));
+
+        let isPlaying = false;
+        let currentStep = 0;
+        let intervalId = null;
+        let bpm = 100;
+
+        const gridEl = document.getElementById('sequencerGrid');
+        const playBtn = document.getElementById('playBtn');
+        const bpmInput = document.getElementById('bpm');
+        const bpmVal = document.getElementById('bpmVal');
+        const giftBtn = document.getElementById('giftBtn');
+        const giftModal = document.getElementById('giftModal');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+
+        const rowNames = ["⚡ 雷の音 (Thunder)", "🌧️ 雨の音 (Rain)"];
+        
+        // グリッドUI生成
+        for (let r = 0; r < rows; r++) {
+            const label = document.createElement('div');
+            label.className = 'row-label';
+            label.innerText = rowNames[r];
+            gridEl.appendChild(label);
+
+            for (let c = 0; c < cols; c++) {
+                const cell = document.createElement('div');
+                cell.className = 'cell';
+                cell.dataset.row = r;
+                cell.dataset.col = c;
+                
+                cell.addEventListener('click', () => {
+                    initAudio();
+                    if (audioCtx && audioCtx.state === 'suspended') {
+                        audioCtx.resume();
+                    }
+
+                    if (gridState[r][c] === 0) {
+                        gridState[r][c] = 1;
+                        cell.classList.add('active');
+                        playSound(r); 
+                    } else {
+                        gridState[r][c] = 0;
+                        cell.classList.remove('active');
+                    }
+                });
+                gridEl.appendChild(cell);
+            }
+        }
+
+        function nextStep() {
+            const prevStep = (currentStep - 1 + cols) % cols;
+            document.querySelectorAll(`.cell[data-col="${prevStep}"]`).forEach(el => {
+                el.classList.remove('playing');
+            });
+
+            document.querySelectorAll(`.cell[data-col="${currentStep}"]`).forEach(el => {
+                el.classList.add('playing');
+                const r = parseInt(el.dataset.row);
+                const c = parseInt(el.dataset.col);
+                if (gridState[r][c] === 1) {
+                    playSound(r);
+                }
+            });
+
+            currentStep = (currentStep + 1) % cols;
+        }
+
+        function startSequencer() {
+            initAudio();
+            if (audioCtx && audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            const interval = (60 / bpm) * 1000; 
+            intervalId = setInterval(nextStep, interval);
+            playBtn.innerText = '停止 ■';
+            playBtn.classList.add('stop');
+            isPlaying = true;
+        }
+
+        function stopSequencer() {
+            clearInterval(intervalId);
+            document.querySelectorAll('.cell').forEach(el => el.classList.remove('playing'));
+            playBtn.innerText = '再生 ▶';
+            playBtn.classList.remove('stop');
+            isPlaying = false;
+            currentStep = 0;
+        }
+
+        playBtn.addEventListener('click', () => {
+            if (isPlaying) { stopSequencer(); } else { startSequencer(); }
+        });
+
+        bpmInput.addEventListener('input', (e) => {
+            bpm = parseInt(e.target.value);
+            bpmVal.innerText = bpm;
+            if (isPlaying) {
+                stopSequencer();
+                startSequencer();
+            }
+        });
+
+        giftBtn.addEventListener('click', () => {
+            stopSequencer();
+            giftModal.style.display = 'flex';
+        });
+
+        closeModalBtn.addEventListener('click', () => {
+            giftModal.style.display = 'none';
+        });
+    </script>
+</body>
+</html>
