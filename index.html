@@ -29,16 +29,13 @@
         }
         #artCanvas:active { cursor: grabbing; }
 
-        /* ☰ ハンバーガーボタン（右上に配置） */
         .menu-toggle-btn {
             position: fixed; top: 16px; right: 16px; z-index: 100;
             background: var(--panel-bg); border: 1px solid rgba(0,255,255,0.3);
             color: #fff; border-radius: 12px; padding: 10px 16px;
             font-size: 0.85rem; font-weight: bold; cursor: pointer;
             box-shadow: 0 4px 15px rgba(0,0,0,0.4); display: flex; align-items: center; gap: 8px;
-            transition: all 0.2s; pointer-events: auto;
         }
-        .menu-toggle-btn:active { transform: scale(0.95); }
 
         .ui-layer {
             position: relative; z-index: 10;
@@ -48,86 +45,80 @@
             pointer-events: none;
             transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
         }
-        /* メニューが閉じている時は画面外（下）に隠す */
-        .ui-layer.menu-hidden {
-            transform: translateY(110%);
-        }
+        .ui-layer.menu-hidden { transform: translateY(110%); }
 
         .controls-panel {
             background: var(--panel-bg);
             border: 1px solid rgba(0, 255, 255, 0.25);
             border-radius: 24px;
-            padding: 16px; width: 100%; max-width: 450px;
+            padding: 16px; width: 100%; max-width: 460px;
             box-sizing: border-box;
             box-shadow: 0 0 40px rgba(0, 255, 255, 0.12);
             pointer-events: auto;
-            max-height: 75vh; overflow-y: auto; /* スマホ画面からはみ出さないように */
+            max-height: 80vh; overflow-y: auto;
         }
 
-        .instruction {
-            font-size: 0.75rem; color: #88aaaa; margin-bottom: 12px; line-height: 1.4;
-        }
-
-        .audio-list {
-            display: flex; gap: 8px; justify-content: center;
-            margin-bottom: 12px; flex-wrap: wrap;
-        }
+        .instruction { font-size: 0.72rem; color: #88aaaa; margin-bottom: 12px; line-height: 1.4; }
+        .audio-list { display: flex; gap: 8px; justify-content: center; margin-bottom: 12px; flex-wrap: wrap; }
 
         .orb-container {
             display: flex; align-items: center;
             background-color: #0a1424; border: 2px solid rgba(0,255,255,0.2);
-            border-radius: 20px; padding: 2px 4px 2px 10px;
-            transition: all 0.2s; cursor: pointer;
+            border-radius: 20px; padding: 2px 4px 2px 10px; transition: all 0.2s; cursor: pointer;
         }
-        .orb-container.playing { border-color: var(--accent-color); box-shadow: 0 0 10px rgba(0,255,255,0.2); }
+        .orb-container.playing { border-color: var(--accent-color); }
         .orb-container.selected { background-color: rgba(0,255,255,0.15); border-color: #fff; }
-
         .audio-num { color: #aaa; font-weight: bold; font-size: 0.8rem; padding-right: 6px; }
         .orb-container.playing .audio-num { color: #fff; }
 
         .delete-btn {
             background: rgba(255,0,50,0.15); border: 1px solid rgba(255,0,50,0.4);
             color: #ff4466; border-radius: 12px; width: 22px; height: 22px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 0.7rem; cursor: pointer; font-weight: bold;
+            display: flex; align-items: center; justify-content: center; font-size: 0.7rem; cursor: pointer;
         }
 
-        .upload-label {
-            width: 100%; background-color: #0b2e52; border: 1px solid rgba(0,255,255,0.4);
-            color: white; padding: 10px; border-radius: 20px; font-weight: bold;
-            font-size: 0.85rem; cursor: pointer; display: block; margin-bottom: 12px;
-            box-sizing: border-box; text-align: center;
+        /* 🛠️ 入力周りのデザイン一新 */
+        .upload-row { display: flex; gap: 10px; margin-bottom: 12px; }
+        .btn-label {
+            flex: 1; background-color: #0b2e52; border: 1px solid rgba(0,255,255,0.4);
+            color: white; padding: 10px; border-radius: 16px; font-weight: bold;
+            font-size: 0.8rem; cursor: pointer; text-align: center; box-sizing: border-box;
         }
-        #audioFile { display: none; }
+        .btn-label.photo-btn { background-color: #3a104a; border-color: rgba(255,0,255,0.4); }
+        #audioFile, #imageFile { display: none; }
 
-        /* 🛠️ クリエイティブ・カスタム設定エリア */
-        .custom-section {
-            border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px; margin-bottom: 12px; text-align: left;
+        .keyword-box {
+            width: 100%; display: flex; gap: 8px; margin-bottom: 12px; box-sizing: border-box;
         }
+        .keyword-input {
+            flex: 1; background: #070d1a; border: 1px solid rgba(0,255,255,0.25);
+            border-radius: 14px; padding: 8px 12px; color: #fff; font-size: 0.8rem; outline: none;
+        }
+        .keyword-input::placeholder { color: #557788; }
+        .keyword-btn {
+            background: linear-gradient(135deg, #0088aa, #00ffff); color: #03050d;
+            border: none; padding: 0 14px; border-radius: 14px; font-weight: bold; font-size: 0.8rem; cursor: pointer;
+        }
+
+        .custom-section { border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px; margin-bottom: 12px; text-align: left; }
         .custom-title { font-size: 0.75rem; color: #00ffff; font-weight: bold; margin-bottom: 6px; }
         .setting-row { display: flex; flex-direction: column; gap: 8px; font-size: 0.75rem; color: #ccc; }
         .setting-item { display: flex; align-items: center; justify-content: space-between; }
         
         select, input[type="range"] {
             background: #0f1a30; border: 1px solid rgba(0,255,255,0.3); color: #fff;
-            padding: 4px 8px; border-radius: 8px; font-size: 0.75rem; outline: none; width: 130px;
+            padding: 4px 8px; border-radius: 8px; font-size: 0.75rem; width: 130px;
         }
-        input[type="range"] { padding: 0; cursor: pointer; }
 
-        /* カラーセレクター */
         .color-picker-box { display: flex; gap: 5px; }
-        .color-dot {
-            width: 20px; height: 20px; border-radius: 10px; cursor: pointer; border: 2px solid transparent;
-        }
+        .color-dot { width: 20px; height: 20px; border-radius: 10px; cursor: pointer; border: 2px solid transparent; }
         .color-dot.active { border-color: #fff; box-shadow: 0 0 8px #fff; }
 
         .gift-btn {
             width: 100%; background: linear-gradient(135deg, #aa0a88, #dd2233);
-            color: white; border: none; padding: 10px; border-radius: 25px;
-            font-weight: bold; cursor: pointer; font-size: 0.8rem; margin-top: 4px;
+            color: white; border: none; padding: 10px; border-radius: 25px; font-weight: bold; cursor: pointer; font-size: 0.8rem;
         }
 
-        /* モーダル */
         .modal {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(3, 5, 10, 0.95); justify-content: center; align-items: center; z-index: 1000; padding: 20px;
@@ -141,17 +132,26 @@
 <body>
 
     <button id="menuToggleBtn" class="menu-toggle-btn">☰ MENU</button>
-
     <canvas id="artCanvas"></canvas>
 
     <div class="ui-layer" id="uiLayer">
         <div class="controls-panel">
-            <div class="instruction">【音声をアップロード】して選択すると、下にカスタムメニューが出現。<br>落書きの種類やカラー、重なる線の数や太さを自分好みにリメイクできます。</div>
+            <div class="instruction">【音】と【写真】や【言葉】を組み合わせて、あなただけの音響落書きをデザイン。音を足した後に形を自由にカスタムできます。</div>
             
             <div class="audio-list" id="audioList"></div>
 
-            <label for="audioFile" class="upload-label">🎵 スマホの音・録音をアップロード</label>
-            <input type="file" id="audioFile" accept=".mp3,.m4a,.wav,.aac,.ogg,audio/mpeg,audio/mp4,audio/wav">
+            <div class="upload-row">
+                <label for="audioFile" class="btn-label">🎵 音声をアップロード</label>
+                <input type="file" id="audioFile" accept=".mp3,.m4a,.wav,.aac,.ogg,audio/*">
+
+                <label for="imageFile" class="btn-label photo-btn">📷 写真から形を抽出</label>
+                <input type="file" id="imageFile" accept="image/*">
+            </div>
+
+            <div class="keyword-box">
+                <input type="text" id="keywordInput" class="keyword-input" placeholder="言葉を入力（例：雷、花火、宇宙、波）">
+                <button id="keywordBtn" class="keyword-btn">生成</button>
+            </div>
             
             <div class="custom-section" id="customSection" style="display: none;">
                 <div class="custom-title">🖌️ 選択中の音のカタチをデザイン</div>
@@ -162,6 +162,7 @@
                             <option value="electric">⚡ カクカク電気</option>
                             <option value="smooth">〰️ なめらか波</option>
                             <option value="zigzag">ジグザグノイズ</option>
+                            <option value="custom">✨ 写真/言葉のカスタム</option>
                         </select>
                     </div>
                     <div class="setting-item">
@@ -186,13 +187,7 @@
     <div id="giftModal" class="modal">
         <div class="modal-content">
             <h2>御中元 🌸</h2>
-            <p>いつも温かいお心遣いをいただき、心より感謝申し上げます。
-
-日頃の感謝を込めまして、ささやかではございますが、涼を感じていただけるお品物をお贈りいたしました。
-
-猛暑の折、体調を崩されませぬよう、どうぞご自愛ください。
-
-（※お品物は別途, 宅配便にてお届けいたします！）</p>
+            <p>いつも温かいお心遣いをいただき、心より感謝申し上げます。日頃の感謝を込めまして、涼を感じていただけるお品物をお贈りいたしました。猛暑の折、体調を崩されませぬよう、どうぞご自愛ください。（※お品物は別途, 宅配便にてお届けいたします！）</p>
             <button id="closeModalBtn" class="close-btn">閉じる</button>
         </div>
     </div>
@@ -203,13 +198,15 @@
         const uiLayer = document.getElementById('uiLayer');
         const menuToggleBtn = document.getElementById('menuToggleBtn');
         const audioFileInput = document.getElementById('audioFile');
+        const imageFileInput = document.getElementById('imageFile');
+        const keywordInput = document.getElementById('keywordInput');
+        const keywordBtn = document.getElementById('keywordBtn');
         const audioListContainer = document.getElementById('audioList');
         const customSection = document.getElementById('customSection');
         const giftBtn = document.getElementById('giftBtn');
         const giftModal = document.getElementById('giftModal');
         const closeModalBtn = document.getElementById('closeModalBtn');
 
-        // カスタム配線用のUI部品
         const shapeTypeSelect = document.getElementById('shapeTypeSelect');
         const colorPickerBox = document.getElementById('colorPickerBox');
         const lineWidthRange = document.getElementById('lineWidthRange');
@@ -218,10 +215,9 @@
         let audioCtx = null;
         let sounds = []; 
         let draggedShape = null; 
-        let selectedSound = null; // 現在カスタムパネルで選ばれている音
+        let selectedSound = null; 
         let uniqueIdCounter = 0; 
 
-        // カラーパレット定義
         const colorPalette = [
             { name: 'cyan', rgb: '0, 255, 255' },
             { name: 'pink', rgb: '255, 20, 147' },
@@ -237,65 +233,59 @@
         window.addEventListener('resize', resizeCanvas);
         resizeCanvas();
 
-        // --- ハンバーガーメニューの開閉 ---
         menuToggleBtn.addEventListener('click', () => {
             uiLayer.classList.toggle('menu-hidden');
             menuToggleBtn.innerText = uiLayer.classList.contains('menu-hidden') ? '☰ MENU' : '✕ CLOSE';
         });
 
-        // --- 進化した手描き落書き（Doodle）風シェイプクラス ---
+        // --- 超進化したカスタム・アート・シェイプクラス ---
         class CustomScribbleShape {
             constructor(id, index) {
                 this.id = id;
                 this.x = Math.random() * (canvas.width - 240) + 120;
                 this.y = Math.random() * (canvas.height - 340) + 120;
-                this.targetX = this.x;
-                this.targetY = this.y;
+                this.targetX = this.x; this.targetY = this.y;
                 this.isDragging = false;
 
-                this.baseSize = 45 + Math.random() * 20;
+                this.baseSize = 50 + Math.random() * 15;
                 this.size = this.baseSize;
                 
-                // ユーザーが変えられるプロパティ（初期値）
                 this.styleType = 'electric'; 
                 this.colorRGB = colorPalette[index % colorPalette.length].rgb;
                 this.customWidth = 2.2;
                 this.layerCount = 3;
 
-                this.vx = (Math.random() - 0.5) * 1.2;
-                this.vy = (Math.random() - 0.5) * 1.2;
+                this.vx = (Math.random() - 0.5) * 1.0;
+                this.vy = (Math.random() - 0.5) * 1.0;
                 
-                this.points = 15 + Math.floor(Math.random() * 6); 
+                this.points = 18; 
                 this.rotAngle = Math.random() * Math.PI * 2;
-                this.rotSpeed = (Math.random() - 0.5) * 0.006;
+                this.rotSpeed = (Math.random() - 0.5) * 0.005;
 
-                // 【完全にランダムな形にするため、線の本数ごとに、別々のいびつさ（シワの癖）と個別の回転速度を持たせる】
+                // 通常の歪み初期データ
                 this.layerQuirks = [];
                 this.layerRotations = [];
                 for (let l = 0; l < 6; l++) {
-                    this.layerQuirks.push(Array(this.points).fill().map(() => 0.4 + Math.random() * 0.9));
-                    this.layerRotations.push({
-                        angle: Math.random() * Math.PI,
-                        speed: (Math.random() - 0.5) * 0.015
-                    });
+                    this.layerQuirks.push(Array(this.points).fill().map(() => 0.5 + Math.random() * 0.8));
+                    this.layerRotations.push({ angle: Math.random() * Math.PI, speed: (Math.random() - 0.5) * 0.012 });
                 }
                 this.noiseSeeds = Array(this.points).fill().map(() => Math.random() * 100);
+
+                // 写真/言葉から抽出されたベクトル相対座標を格納する特設配列
+                this.customVectorPath = null; 
             }
 
             isHit(tx, ty) {
                 const dist = Math.sqrt((tx - this.x)**2 + (ty - this.y)**2);
-                return dist < this.size * 1.4;
+                return dist < this.size * 1.5;
             }
 
             update(volume) {
                 if (this.isDragging) {
                     this.x += (this.targetX - this.x) * 0.25;
                     this.y += (this.targetY - this.y) * 0.25;
-                    this.vx = (Math.random() - 0.5) * 1.2;
-                    this.vy = (Math.random() - 0.5) * 1.2;
                 } else {
-                    this.x += this.vx;
-                    this.y += this.vy;
+                    this.x += this.vx; this.y += this.vy;
                     if (this.x < 80 || this.x > canvas.width - 80) this.vx *= -1;
                     if (this.y < 80 || this.y > canvas.height - 80) this.vy *= -1;
                 }
@@ -303,11 +293,9 @@
                 this.size = this.baseSize + (volume * 160);
                 this.rotAngle += this.rotSpeed + (volume * 0.01);
 
-                // 線ごとにランダムに重ね合わさって回るように、個別の角度を動かす
                 for (let l = 0; l < this.layerCount; l++) {
-                    this.layerRotations[l].angle += this.layerRotations[l].speed + (volume * 0.03);
+                    this.layerRotations[l].angle += this.layerRotations[l].speed + (volume * 0.02);
                 }
-
                 for (let i = 0; i < this.points; i++) {
                     this.noiseSeeds[i] += 0.04 + (volume * 0.15);
                 }
@@ -318,49 +306,57 @@
                 ctx.translate(this.x, this.y);
                 ctx.rotate(this.rotAngle);
                 
-                // 【線同士は並ぶのではなく、ランダムに重なり合って交差する】
                 for (let l = 0; l < this.layerCount; l++) {
                     ctx.save();
-                    // 線レイヤーごとに個別のランダム回転を加えて重なりを複雑化
                     ctx.rotate(this.layerRotations[l].angle);
 
                     ctx.lineWidth = this.isDragging ? this.customWidth * 1.5 : this.customWidth;
                     const alpha = this.isDragging ? (1.0 - l * 0.15) : (0.5 + volume * 0.5 - (l * 0.08));
                     ctx.strokeStyle = `rgba(${this.colorRGB}, ${Math.max(0.15, alpha)})`;
                     
-                    ctx.shadowColor = `rgba(${this.colorRGB}, 0.6)`;
+                    ctx.shadowColor = `rgba(${this.colorRGB}, 0.65)`;
                     ctx.shadowBlur = this.isDragging ? 16 : 5;
 
                     ctx.beginPath();
-                    const quirks = this.layerQuirks[l]; // この線固有のいびつさ
 
-                    for (let i = 0; i < this.points; i++) {
-                        const angle = (Math.PI * 2 / this.points) * i;
-                        const quirk = quirks[i];
-                        
-                        // 音でブルブル震えるノイズ
-                        let jitter = Math.sin(this.noiseSeeds[i]) * (this.size * 0.12 * (volume + 0.1));
-                        let r = (this.size * quirk) + jitter;
+                    // 【写真データまたは特別な言葉のカスタムパスがある場合】
+                    if (this.styleType === 'custom' && this.customVectorPath) {
+                        const path = this.customVectorPath;
+                        for (let i = 0; i < path.length; i++) {
+                            // 音の音量に合わせて線全体が細かく有機的に震える処理
+                            const jitterX = Math.sin(this.noiseSeeds[i % this.points] * 1.2) * (this.size * 0.08 * volume);
+                            const jitterY = Math.cos(this.noiseSeeds[i % this.points] * 0.9) * (this.size * 0.08 * volume);
+                            
+                            // レイヤーごとのランダムズレ効果
+                            const layerShift = 1 + (l * 0.04 - 0.08); 
+                            const px = path[i].x * this.size * 1.2 * layerShift + jitterX;
+                            const py = path[i].y * this.size * 1.2 * layerShift + jitterY;
 
-                        let px, py;
-                        if (this.styleType === 'electric') {
-                            // ⚡ カクカク電気
-                            px = Math.cos(angle) * r;
-                            py = Math.sin(angle) * r;
-                        } else if (this.styleType === 'smooth') {
-                            // 〰️ なめらか波
-                            const waveFactor = 1 + Math.sin(angle * 3 + this.noiseSeeds[i]*0.5) * 0.1;
-                            px = Math.cos(angle) * r * waveFactor;
-                            py = Math.sin(angle) * r * waveFactor;
-                        } else {
-                            // ジグザグノイズ
-                            const zig = (i % 2 === 0 ? 1.15 : 0.85);
-                            px = Math.cos(angle) * r * zig;
-                            py = Math.sin(angle) * r * zig;
+                            if (i === 0) ctx.moveTo(px, py);
+                            else ctx.lineTo(px, py);
                         }
-                        
-                        if (i === 0) ctx.moveTo(px, py);
-                        else ctx.lineTo(px, py);
+                    } else {
+                        // 通常の手描きランダムノイズ生成
+                        const quirks = this.layerQuirks[l];
+                        for (let i = 0; i < this.points; i++) {
+                            const angle = (Math.PI * 2 / this.points) * i;
+                            const quirk = quirks[i];
+                            let jitter = Math.sin(this.noiseSeeds[i]) * (this.size * 0.12 * (volume + 0.1));
+                            let r = (this.size * quirk) + jitter;
+
+                            let px, py;
+                            if (this.styleType === 'electric' || this.styleType === 'custom') {
+                                px = Math.cos(angle) * r; py = Math.sin(angle) * r;
+                            } else if (this.styleType === 'smooth') {
+                                const wave = 1 + Math.sin(angle * 3 + this.noiseSeeds[i]*0.4) * 0.1;
+                                px = Math.cos(angle) * r * wave; py = Math.sin(angle) * r * wave;
+                            } else {
+                                px = Math.cos(angle) * r * (i % 2 === 0 ? 1.15 : 0.85);
+                                py = Math.sin(angle) * r * (i % 2 === 0 ? 1.15 : 0.85);
+                            }
+                            if (i === 0) ctx.moveTo(px, py);
+                            else ctx.lineTo(px, py);
+                        }
                     }
                     ctx.closePath();
                     ctx.stroke();
@@ -370,7 +366,115 @@
             }
         }
 
-        // --- カラーピッカーUIの動的生成 ---
+        // --- 📷 写真から輪郭（シェイプ）を抽出するエッジ解析ロジック ---
+        imageFileInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file || !selectedSound) {
+                if(!selectedSound) alert("先に音声をアップロードして、選択（ハイライト）してください！");
+                return;
+            }
+
+            const img = new Image();
+            img.src = URL.createObjectURL(file);
+            img.onload = function() {
+                // 仮想Canvasを作って画像を小さく描画（解析を高速＆軽量化するため）
+                const vCanvas = document.createElement('canvas');
+                const vCtx = vCanvas.getContext('2d');
+                vCanvas.width = 60; vCanvas.height = 60;
+                vCtx.drawImage(img, 0, 0, 60, 60);
+
+                const imgData = vCtx.getImageData(0, 0, 60, 60).data;
+                const points = [];
+
+                // 簡易輪郭抽出（周囲との輝度・透明度の差をチェック）
+                for (let y = 1; y < 59; y++) {
+                    for (let x = 1; x < 59; x++) {
+                        const idx = (y * 60 + x) * 4;
+                        const alpha = imgData[idx + 3];
+                        const brightness = (imgData[idx] + imgData[idx+1] + imgData[idx+2]) / 3;
+
+                        // 右隣のピクセルと比較
+                        const rightIdx = (y * 60 + (x + 1)) * 4;
+                        const rightBright = (imgData[rightIdx] + imgData[rightIdx+1] + imgData[rightIdx+2]) / 3;
+
+                        if (Math.abs(brightness - rightBright) > 35 || (alpha > 50 && imgData[rightIdx+3] < 50)) {
+                            // 中心(30,30)からの相対ベクトル（-1.0 〜 1.0）に正規化
+                            points.push({ x: (x - 30) / 30, y: (y - 30) / 30 });
+                        }
+                    }
+                }
+
+                if (points.length > 5) {
+                    // 綺麗な手描き線にするため、中心点からの角度順に並び替える(時計回り)
+                    points.sort((a, b) => Math.atan2(a.y, a.x) - Math.atan2(b.y, b.x));
+                    
+                    // 現在選ばれている音の形をカスタムに上書き
+                    selectedSound.shape.customVectorPath = points;
+                    selectedSound.shape.styleType = 'custom';
+                    shapeTypeSelect.value = 'custom';
+                } else {
+                    alert("写真から明確な輪郭が見つかりませんでした。はっきりした被写体の写真を試してください！");
+                }
+            };
+            imageFileInput.value = ''; // クリア
+        });
+
+        // --- ✍️ 言葉のキーワードから形を作るジェネレーター ---
+        keywordBtn.addEventListener('click', function() {
+            if (!selectedSound) {
+                alert("先に音声をアップロードして、選択（ハイライト）してください！");
+                return;
+            }
+            const word = keywordInput.value.trim();
+            if (!word) return;
+
+            const points = [];
+            
+            if (word.includes("雷") || word.includes("いなずま") || word.includes("lightning")) {
+                // ⚡ ジグザグの鋭利な多角形パス
+                for(let i=0; i<16; i++) {
+                    const angle = (Math.PI * 2 / 16) * i;
+                    const r = 0.5 + (i % 2 === 0 ? 0.6 : -0.2) + Math.random()*0.2;
+                    points.push({ x: Math.cos(angle)*r, y: Math.sin(angle)*r });
+                }
+                selectedSound.shape.colorRGB = "0, 255, 255"; // シアン
+            } else if (word.includes("花火") || word.includes("星") || word.includes("fire")) {
+                // 🎆 内外が激しく飛び出す放射パス
+                for(let i=0; i<24; i++) {
+                    const angle = (Math.PI * 2 / 24) * i;
+                    const r = (i % 2 === 0 ? 1.1 : 0.2);
+                    points.push({ x: Math.cos(angle)*r, y: Math.sin(angle)*r });
+                }
+                selectedSound.shape.colorRGB = "255, 20, 147"; // ピンク
+            } else if (word.includes("波") || word.includes("海") || word.includes("wave")) {
+                // 〰️ 横長のうねうねした楕円パス
+                for(let i=0; i<30; i++) {
+                    const angle = (Math.PI * 2 / 30) * i;
+                    const rx = Math.cos(angle) * 1.3;
+                    const ry = Math.sin(angle) * 0.5 + Math.sin(angle * 4)*0.15;
+                    points.push({ x: rx, y: ry });
+                }
+                selectedSound.shape.colorRGB = "50, 255, 50"; // グリーン
+            } else {
+                // 🪐 その他（宇宙、ハートなど）：ランダムな雲型オーガニックパス
+                for(let i=0; i<20; i++) {
+                    const angle = (Math.PI * 2 / 20) * i;
+                    const r = 0.7 + Math.sin(angle * 3) * 0.25 + Math.random()*0.15;
+                    points.push({ x: Math.cos(angle)*r, y: Math.sin(angle)*r });
+                }
+            }
+
+            selectedSound.shape.customVectorPath = points;
+            selectedSound.shape.styleType = 'custom';
+            openCustomPanel(selectedSound); // パネル表示更新
+            keywordInput.value = ''; // 入力欄をクリア
+        });
+
+        // キーワード欄でエンターキーが押されても生成できるように
+        keywordInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') keywordBtn.click(); });
+
+
+        // --- 以下、既存の洗練されたUI/オーディオコアロジック ---
         function createColorPickerUI() {
             colorPickerBox.innerHTML = '';
             colorPalette.forEach(color => {
@@ -390,26 +494,17 @@
         }
         createColorPickerUI();
 
-        // --- カスタム設定パネルの連動連鎖 ---
         function openCustomPanel(soundData) {
             selectedSound = soundData;
             customSection.style.display = 'block';
-
-            // 現在のシェイプの状態をUI側に反映
             shapeTypeSelect.value = soundData.shape.styleType;
             lineWidthRange.value = soundData.shape.customWidth;
             lineCountRange.value = soundData.shape.layerCount;
 
-            // カラーのアクティブ状態を更新
             document.querySelectorAll('.color-dot').forEach(dot => {
-                if (dot.dataset.rgb === soundData.shape.colorRGB) {
-                    dot.classList.add('active');
-                } else {
-                    dot.classList.remove('active');
-                }
+                if (dot.dataset.rgb === soundData.shape.colorRGB) dot.classList.add('active');
+                else dot.classList.remove('active');
             });
-
-            // 選択したオーブの見た目をハイライト
             sounds.forEach(s => s.contEl.classList.remove('selected'));
             soundData.contEl.classList.add('selected');
         }
@@ -424,7 +519,6 @@
             if (selectedSound) selectedSound.shape.layerCount = parseInt(e.target.value);
         });
 
-        // --- オーディオコア＆UI操作 ---
         function initAudioContext() {
             if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         }
@@ -451,7 +545,6 @@
 
             const newShape = new CustomScribbleShape(id, sounds.length);
 
-            // コントロールオーブUIの生成
             const container = document.createElement('div');
             container.className = 'orb-container';
             container.id = `orb-cont-${id}`;
@@ -469,68 +562,40 @@
             audioListContainer.appendChild(container);
 
             const soundData = {
-                id: id,
-                audioEl: audioEl,
-                analyser: analyser,
-                dataArray: new Uint8Array(16),
-                shape: newShape,
-                isPlaying: false,
-                contEl: container
+                id: id, audioEl: audioEl, analyser: analyser, dataArray: new Uint8Array(16), shape: newShape, isPlaying: false, contEl: container
             };
             sounds.push(soundData);
 
-            // オーブそのものをタップしたらカスタムパネルを開く＆再生切り替え
             numSpan.addEventListener('click', (evt) => {
                 evt.stopPropagation();
                 if (audioCtx.state === 'suspended') audioCtx.resume();
                 openCustomPanel(soundData);
 
                 if (soundData.isPlaying) {
-                    audioEl.pause();
-                    container.classList.remove('playing');
-                    soundData.isPlaying = false;
+                    audioEl.pause(); container.classList.remove('playing'); soundData.isPlaying = false;
                 } else {
-                    audioEl.play().catch(err => console.log(err));
-                    container.classList.add('playing');
-                    soundData.isPlaying = true;
+                    audioEl.play().catch(err => console.log(err)); container.classList.add('playing'); soundData.isPlaying = true;
                 }
             });
 
-            // コンテナ自体をタップでもパネルを開く
             container.addEventListener('click', () => openCustomPanel(soundData));
 
-            // ✕ボタンで削減
             delBtn.addEventListener('click', (evt) => {
                 evt.stopPropagation();
-                audioEl.pause();
-                sourceNode.disconnect();
-                analyser.disconnect();
-                container.remove();
-                
+                audioEl.pause(); sourceNode.disconnect(); analyser.disconnect(); container.remove();
                 sounds = sounds.filter(s => s.id !== id);
-                if (selectedSound && selectedSound.id === id) {
-                    customSection.style.display = 'none';
-                    selectedSound = null;
-                }
-                
-                document.querySelectorAll('.audio-num').forEach((el, idx) => {
-                    el.innerText = `音 ${idx + 1}`;
-                });
+                if (selectedSound && selectedSound.id === id) { customSection.style.display = 'none'; selectedSound = null; }
+                document.querySelectorAll('.audio-num').forEach((el, idx) => { el.innerText = `音 ${idx + 1}`; });
             });
 
-            // 追加と同時に自動選択＆自動再生
             audioEl.play().catch(err => console.log(err));
-            container.classList.add('playing');
-            soundData.isPlaying = true;
+            container.classList.add('playing'); soundData.isPlaying = true;
             openCustomPanel(soundData);
-            
             audioFileInput.value = ''; 
         });
 
-        // --- メインループ ---
         function animate() {
             requestAnimationFrame(animate);
-
             ctx.fillStyle = 'rgba(3, 5, 13, 0.2)'; 
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -542,14 +607,12 @@
                     for (let i = 0; i < sound.dataArray.length; i++) sum += sound.dataArray[i];
                     volume = (sum / sound.dataArray.length) / 255;
                 }
-
                 sound.shape.update(volume);
                 sound.shape.draw(volume);
             });
         }
         animate();
 
-        // --- ドラッグ・タッチ操作時に自動でカスタムパネルを連動 ---
         function getMousePos(e) {
             const rect = canvas.getBoundingClientRect();
             const clientX = e.touches ? e.touches[0].clientX : e.clientX;
@@ -560,16 +623,12 @@
         function handleStart(e) {
             initAudioContext();
             const pos = getMousePos(e);
-            
             for (let i = sounds.length - 1; i >= 0; i--) {
                 const sound = sounds[i];
                 if (sound.shape.isHit(pos.x, pos.y)) {
                     draggedShape = sound.shape;
                     sound.shape.isDragging = true;
-                    sound.shape.targetX = pos.x;
-                    sound.shape.targetY = pos.y;
-                    
-                    // 触った落書きのカスタムパネルを自動で開く
+                    sound.shape.targetX = pos.x; sound.shape.targetY = pos.y;
                     openCustomPanel(sound);
                     break;
                 }
@@ -580,37 +639,25 @@
             if (!draggedShape) return;
             if (e.cancelable) e.preventDefault(); 
             const pos = getMousePos(e);
-            draggedShape.targetX = pos.x;
-            draggedShape.targetY = pos.y;
+            draggedShape.targetX = pos.x; draggedShape.targetY = pos.y;
         }
 
         function handleEnd() {
-            if (draggedShape) {
-                draggedShape.isDragging = false;
-                draggedShape = null;
-            }
+            if (draggedShape) { draggedShape.isDragging = false; draggedShape = null; }
         }
 
         canvas.addEventListener('mousedown', handleStart);
         window.addEventListener('mousemove', handleMove);
         window.addEventListener('mouseup', handleEnd);
-
         canvas.addEventListener('touchstart', handleStart, { passive: false });
         window.addEventListener('touchmove', handleMove, { passive: false });
         window.addEventListener('touchend', handleEnd);
 
         giftBtn.addEventListener('click', () => {
-            sounds.forEach(sound => {
-                sound.audioEl.pause();
-                sound.contEl.classList.remove('playing');
-                sound.isPlaying = false;
-            });
+            sounds.forEach(sound => { sound.audioEl.pause(); sound.contEl.classList.remove('playing'); sound.isPlaying = false; });
             giftModal.style.display = 'flex';
         });
-
-        closeModalBtn.addEventListener('click', () => {
-            giftModal.style.display = 'none';
-        });
+        closeModalBtn.addEventListener('click', () => { giftModal.style.display = 'none'; });
     </script>
 </body>
 </html>
